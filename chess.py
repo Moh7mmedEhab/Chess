@@ -1,3 +1,5 @@
+from collections import deque
+
 #Print & Board Creation
 
 def print_board(_board, _type="Default"):
@@ -162,6 +164,54 @@ def knight_tour(_board, _row, _col, _move=1):
         _board[dx][dy] = -1
         
     return False
+    
+#Knight Path
+
+def pos_to_coords(pos):
+	return (ord(pos[0]) - ord("a"), int(pos[1]) - 1)
+
+def coords_to_pos(coords):
+	return chr(coords[0] + ord("a")) + str(coords[1] + 1)
+	
+def knight_path(start, end):
+	start_coords = pos_to_coords(start)
+	end_coords = pos_to_coords(end)
+	knight_possibilities = [(1, 2), (1, -2), (-1, 2), (-1, -2), (2, 1), (2, -1), (-2, 1), (-2, -1)]
+	
+	visited = set()
+	queue = deque([start_coords])
+	parent = {}
+	
+	while deque:
+		current = queue.popleft()
+		if current == end_coords:
+			break
+			
+		if current in visited:
+			continue
+			
+		visited.add(current)
+		
+		for dc, dr in knight_possibilities:
+			new_x, new_y = current[0] + dc, current[1] + dr
+			new_pos = (new_x, new_y)
+			if 0 <= new_x < 8 and 0 <= new_y < 8 and new_pos not in parent and new_pos:
+				parent[new_pos] = current
+				queue.append(new_pos)
+			
+	if end_coords not in parent:
+		return -1
+		
+	path = []
+	current = end_coords
+	while current != start_coords:
+		path.append(coords_to_pos(parent[current]))
+		current = parent[current]
+
+	path.reverse()
+	path.append(end)
+	
+	return (len(path) - 1, " => ".join(path))
 
 FEN = "rnbqkbnr/ppp2ppp/8/8/8/8/PPP2PPP/RNBQKBNR"
 
@@ -182,3 +232,5 @@ board = Board(FEN)
 
 print_board(board)
 print(piece_threats(board, piece_place(board, "Q")))
+
+print(knight_path("a1", "h8"))
